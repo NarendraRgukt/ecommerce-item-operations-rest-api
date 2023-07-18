@@ -35,6 +35,13 @@ class ItemManager(viewsets.ModelViewSet):
     authentication_classes=[TokenAuthentication]
     permission_classes=[IsAuthenticated,permissions.ItemCreationPermission]
     queryset=models.Item.objects.all()
+    def create(self, request, *args, **kwargs):
+        # Handle bulk creation of items using a list of data
+        serializer = self.get_serializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 
